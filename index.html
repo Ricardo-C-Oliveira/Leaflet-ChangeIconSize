@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+  <title>Leaflet Web Map</title>
+
+  <!-- reference to Leaflet CSS -->
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+
+  <!-- reference to Leaflet JavaScript -->
+  <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+
+  <!-- set width and height styles for map -->
+  <style>
+    #map {
+      width: 960px;
+      height: 500px;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <!-- place holder for map -->
+  <div id="map"></div>
+  <input type="range" id="myRange" value="53" onipnput="myFunction(value)">
+  <button onclick="myFunction()"> Re-Size Icon</button>
+  <script>
+    //  create map object, tell it to live in 'map' div and give initial latitude, longitude, zoom values
+    var map = L.map('map').setView([43.64701, -79.39425], 15);
+
+    //  add base map tiles from OpenStreetMap and attribution info to 'map' div
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    var x = 46;
+
+    function myFunction() {
+      x = document.getElementById("myRange").value;
+      console.log(x);
+      var icon = marker.options.icon;
+      icon.options.iconSize = [x, x];
+      marker.setIcon(icon1);
+    }
+
+    // create custom icon
+    var icon1 = L.icon({
+      iconUrl: './EL School.svg',
+      shadowUrl: './border.svg',
+      iconSize: [x, x], // size of the icon
+      shadowSize: [53, 53]
+    });
+
+    console.log(x);
+
+    var icon2 = L.icon({
+      iconUrl: './EL School.svg',
+      shadowUrl: './border.svg',
+      iconSize: [24, 24], // size of the icon
+      shadowSize: [27, 27]
+    });
+
+    var icon3 = L.icon({
+      iconUrl: './EL School.svg',
+      shadowUrl: './border.svg',
+      iconSize: [15, 15], // size of the icon
+      shadowSize: [18, 18]
+    });
+
+    // create marker object, pass custom icon as option, add to map
+    var marker = L.marker([43.64701, -79.39425], {
+      icon: icon1
+    }).addTo(map);
+    var marker2 = L.marker([43.64701, -79.39225], {
+      icon: icon2
+    }).addTo(map);
+    var marker2 = L.marker([43.64701, -79.39025], {
+      icon: icon3
+    }).addTo(map);
+  </script>
+
+</body>
+
+</html>
