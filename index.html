@@ -3,38 +3,66 @@
 <html>
 
 <head>
-
   <title>Leaflet Web Map</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- reference to Leaflet CSS -->
   <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-
   <!-- reference to Leaflet JavaScript -->
   <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+  <!-- bootstrap because it is awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-  <!-- set width and height styles for map -->
-  <style>
-    #map {
-      width: 100%;
-      height: 50vh;
-    }
-    h5 {
-      font-family: sans-serif;
-    }
-  </style>
-
+  <link rel="stylesheet" href="./assets/css/style.css">
 </head>
 
 <body>
 
   <!-- place holder for map -->
-  <div id="map"></div>
-  <div>
-    <br>
-    <input type="text" id="myField">
-    <button onclick="myFunction()"> Set Size</button>
-    <p id="valueX"></p>
-    <p id="valueY"></p>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <h3>Using SVG to draw Leaflet icons</h3>
+        <div id="map"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1" id="content">
+        <div style="text-align: center">
+          <div class="btn-group">
+          <input type="text" id="myField" class="form-control" placeholder="Type a new size in pixels...">
+            </div>
+          <button class="btn btn-default" onclick="myFunction()"> Set Size</button>
+          <p id="valueX"></p>
+          <p id="valueY"></p>
+          <br>
+          <button class="btn btn-default" id="populate">Add 10 markers of new size</button>
+          <button class="btn btn-default" id="remove">Remove markers</button>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2" style="padding-bottom:20px">
+        <h4>Explanation:</h4>
+        <p>
+          This page serves the purpose of explaining how SVG (<a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable Vector Graphics</a>) can be used to display markers on a Leaflet map. The regular approach to icon drawing on a web map is to use png images, however, this brings some problems. Here is a list of potential problems that the use of png may bring:
+        </p>
+        <ul>
+          <li>
+            PNG graphics are raster based which means that when re-sized there is a quality loss.
+          </li>
+          <li>
+            Usually two sets of PNG graphics have to be created to account for different display resolutions, one set for standard resolutions (up to 1080p) and another for high resolution displays (i.e. Apple's retina)
+          </li>
+        </ul>
+        <p>
+          One of the biggest advantages of SVG over PNG is that the first renders perfectly on any screen. And since SVG is a vector graphic we can re-sized it on the fly without being concerned about quality loss. By using the input blow above you can try any pixel size and then visualize how the icon renders on the map.
+        </p>
+        <p>
+          The icon above is composed of two SVGs. The first is the pictorial representation of a structure, and the second is a colored frame representing the point status with a black background. The way both are combined is by setting the border SVG as a marker shadow for the pictorial SVG.
+        </p>
+      </div>
+    </div>
   </div>
   <script>
     var map = L.map('map').setView([39.746886, -104.997131], 15);
@@ -44,6 +72,7 @@
     }).addTo(map);
 
     var x = 41;
+    var markers = new L.FeatureGroup();
 
     function myFunction() {
       //x = document.getElementById("myRange").value;
@@ -52,49 +81,74 @@
       console.log(x);
       var icon = marker.options.icon;
       icon.options.iconSize = [x, x];
-      var y = x + 12;
+      var y = x;
       console.log(y);
       icon.options.shadowSize = [y, y]
       marker.setIcon(icon1);
-      document.getElementById("valueX").innerHTML = "<h5>Current Icon size is: " + x + "px</h5>";
-      document.getElementById("valueY").innerHTML = "<h5>Current Icon Shadow size is: " + y + "px</h5>";
+      document.getElementById("valueX").innerHTML = "<h4>Current Icon size is: " + x + "px</h4>";
+      document.getElementById("valueY").innerHTML = "<h4>Current Icon Shadow size is: " + y + "px</h4>";
     }
+
+    document.getElementById("valueX").innerHTML = "<h4>Current Icon size is: " + x + "px</h4>";
+    //document.getElementById("valueY").innerHTML = "<h5>Current Icon Shadow size is: " + y + "px</h5>";
 
     // create custom icon
     var icon1 = L.icon({
-      iconUrl: './EL School.svg',
-      shadowUrl: './border.svg',
+      iconUrl: './assets/svg/EL School.svg',
+      shadowUrl: './assets/svg/border.svg',
       iconSize: [x, x], // size of the icon
-      shadowSize: [x + 12, x + 12]
+      shadowSize: [x, x]
     });
 
     console.log(x);
-
-    var icon2 = L.icon({
-      iconUrl: './EL School.svg',
-      shadowUrl: './border.svg',
-      iconSize: [24, 24], // size of the icon
-      shadowSize: [27, 27]
-    });
-
-    var icon3 = L.icon({
-      iconUrl: './EL School.svg',
-      shadowUrl: './border.svg',
-      iconSize: [15, 15], // size of the icon
-      shadowSize: [18, 18]
-    });
 
     // create marker object, pass custom icon as option, add to map
     var marker = L.marker([39.746886, -104.997131], {
       icon: icon1,
       draggable: true
-    }).bindPopup("Hi!").addTo(map);
-    var marker2 = L.marker([39.746886, -104.995131], {
-      icon: icon2
-    }).addTo(map);
-    var marker2 = L.marker([39.746886, -104.991131], {
-      icon: icon3
-    }).addTo(map);
+    }).bindPopup("You can re-size me and I'm also draggable!").addTo(map).openPopup();
+
+    function getRandomLatLng(map) {
+      var bounds = map.getBounds(),
+        southWest = bounds.getSouthWest(),
+        northEast = bounds.getNorthEast(),
+        lngSpan = northEast.lng - southWest.lng,
+        latSpan = northEast.lat - southWest.lat;
+      return new L.LatLng(
+        southWest.lat + latSpan * Math.random(),
+        southWest.lng + lngSpan * Math.random()
+      );
+    }
+
+var borders = ['./assets/svg/border.svg','./assets/svg/border2.svg','./assets/svg/border3.svg','./assets/svg/border4.svg','./assets/svg/border5.svg'];
+
+var icons = ['./assets/svg/EL School.svg','./assets/svg/HS School.svg','./assets/svg/MS School.svg','./assets/svg/TS School.svg',]
+    function populate() {
+      for (var i = 0; i < 10; i++) {
+        markers.addLayer(
+          new L.Marker(
+            getRandomLatLng(map), {
+              icon: L.icon({
+                iconUrl: icons[Math.floor(Math.random()*icons.length)],
+                shadowUrl: borders[Math.floor(Math.random()*borders.length)],
+                iconSize: [x, x], // size of the icon
+                shadowSize: [x, x]
+              }),
+              draggable: true
+            }
+          )
+        );
+      }
+      return false;
+    }
+    map.addLayer(markers);
+
+    function removeMarkers() {
+      markers.clearLayers();
+    }
+    // populate();
+    L.DomUtil.get('populate').onclick = populate;
+    L.DomUtil.get('remove').onclick = removeMarkers;
   </script>
 
 </body>
